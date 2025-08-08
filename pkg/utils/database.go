@@ -20,12 +20,10 @@ func InitDatabase(cfg types.Config) (*sql.DB, error) {
 		return nil, fmt.Errorf("error opening database: %v", err)
 	}
 
-	// Connection pool settings
 	DB.SetMaxOpenConns(25)
 	DB.SetMaxIdleConns(5)
 	DB.SetConnMaxLifetime(5 * time.Minute)
 
-	// Test connection
 	if err = DB.Ping(); err != nil {
 		return nil, fmt.Errorf("error connecting to database: %v", err)
 	}
@@ -34,7 +32,6 @@ func InitDatabase(cfg types.Config) (*sql.DB, error) {
 	return DB, nil
 }
 
-// CloseDatabase closes the database connection
 func CloseDatabase() error {
 	if DB != nil {
 		fmt.Println("Closing database connection...")
