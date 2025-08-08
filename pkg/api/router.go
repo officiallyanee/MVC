@@ -23,6 +23,7 @@ func Routing(){
 	menu := auth.PathPrefix("/menu").Subrouter()
 	menu.Use(middleware.RestrictTo("customer","chef","admin"))
 	menu.HandleFunc("", menuController.GetDefaultMenu).Methods("GET")
+	menu.HandleFunc("/{category}", menuController.GetMenuByCategory).Methods("GET")
 
 	adminController:=controller.AdminController{DB:utils.DB}
 	admin := auth.PathPrefix("/admin").Subrouter()

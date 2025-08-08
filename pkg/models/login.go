@@ -5,7 +5,6 @@ import (
 	"MVC/pkg/types"
 )
 
-
 func PostUserDetails(db *sql.DB, user types.User) error {
     query := `
         INSERT INTO login_details (user_id, name, email, pwd_hash, role)
