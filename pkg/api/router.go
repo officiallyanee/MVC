@@ -44,6 +44,12 @@ func Routing(){
 	list.HandleFunc("/customerTableNo",listController.GetTableNo).Methods("GET")
 	list.HandleFunc("/order",listController.PlaceOrder).Methods("POST")
 
+	ordersController:=controller.OrdersController{DB:utils.DB}
+	order := auth.PathPrefix("/orders").Subrouter()
+	order.Use(middleware.RestrictTo("customer","chef","admin"))
+	order.HandleFunc("", ordersController.GetOrders).Methods("GET")
+	order.HandleFunc("", ordersController.UpdateOrder).Methods("PATCH")
+
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
