@@ -31,10 +31,17 @@ func(lc *ListController) MakePriceList(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "Invalid JSON body", http.StatusBadRequest)
         return
     }
+	if len(itemList) == 0 {
+        http.Error(w, "Item list cannot be empty", http.StatusBadRequest)
+        return
+    }
+
 	itemPriceList,err:=models.GetListDetails(lc.DB,itemList)
 	if err!=nil{
-		panic(err)
+		http.Error(w, "Failed to retrieve price list details", http.StatusInternalServerError)
+    	return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(itemPriceList); err != nil {
@@ -50,11 +57,13 @@ func(lc *ListController) CheckAvailiblity(w http.ResponseWriter,r *http.Request)
 		http.Error(w, "Invalid table number", http.StatusBadRequest)
 		return
 	}
+
 	status,err:= models.GetTableStatus(lc.DB,uint64(tableno))
 	if err!=nil{
 		http.Error(w,"Some Unknown error occured while fetching menu",http.StatusInternalServerError)
 		return
 	}
+	
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(status); err != nil {
@@ -113,6 +122,14 @@ func(lc *ListController) PlaceOrder(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "Invalid JSON body", http.StatusBadRequest)
         return
     }
+	if len(orderList.ItemList) == 0 {
+		http.Error(w, "Cannot place an order with no items", http.StatusBadRequest)
+		return
+	}
+	if orderList.Order.TableNo <= 0 || orderList.Order.TableNo > 50 {
+		http.Error(w, "Invalid table number", http.StatusBadRequest)
+		return
+	}
 
 	order.OrderID = uuid.New().String()
 	order.CustomerID = userID

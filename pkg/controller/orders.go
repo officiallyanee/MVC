@@ -44,11 +44,20 @@ func(mc *OrdersController) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 		OrderID     string       `json:"order_id"`
 		ReceiveTime sql.NullTime `json:"received_time"`
 	}
+	
 	err := json.NewDecoder(r.Body).Decode(&req)
     if err != nil {
         http.Error(w, "Invalid JSON body", http.StatusBadRequest)
         return
     }
+	if req.OrderID=="" {
+		http.Error(w,"Missing order_id in request", http.StatusBadRequest)
+		return
+	}
+	if !req.ReceiveTime.Valid{
+		http.Error(w,"Missing received_time in request", http.StatusBadRequest)
+		return
+	}
 
 	err = models.UpdateReceiveTime(mc.DB,req.OrderID,req.ReceiveTime)
 	if err!=nil{

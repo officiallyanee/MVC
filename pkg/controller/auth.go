@@ -27,6 +27,11 @@ func(ac *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w,"Invalid input", http.StatusBadRequest)
 		return
 	}
+	
+	if strings.TrimSpace(req.Name) == "" || strings.TrimSpace(req.Email) == "" {
+        http.Error(w, "Name and Email cannot be empty", http.StatusBadRequest)
+        return
+    }
 
 	if len(req.Password)<8 {
 		http.Error(w,"Password must be at least 8 characters", http.StatusBadRequest)
@@ -72,7 +77,7 @@ func(ac *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 	})
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(`{"message": "User registered successfully"}`))
+	w.Write([]byte(`User registered successfully`))
 }
 
 func (ac *AuthController) Login(w http.ResponseWriter, r *http.Request) {
@@ -83,6 +88,16 @@ func (ac *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 
 	if err:=json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+	
+	if strings.TrimSpace(req.Name) == "" {
+        http.Error(w, "Name cannot be empty", http.StatusBadRequest)
+        return
+    }
+
+	if len(req.Password)<8 {
+		http.Error(w,"Password must be at least 8 characters", http.StatusBadRequest)
 		return
 	}
 

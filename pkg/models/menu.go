@@ -6,7 +6,7 @@ import (
 	"MVC/pkg/types"
 )
 
-func GetItemsByCategory(db *sql.DB, category string) (*[]types.Item,error) {
+func GetItemsByCategory(db *sql.DB, category string) ([]types.Item,error) {
     query := `
         WITH CategoryNames AS (
             SELECT c.item_id, cl.category
@@ -47,7 +47,7 @@ func GetItemsByCategory(db *sql.DB, category string) (*[]types.Item,error) {
         log.Fatal(err)
 		return nil,err
     }
-    return &items, nil
+    return items, nil
 }
 
 func GetAllCategories(db *sql.DB) (*[]types.Category, error) {

@@ -32,13 +32,16 @@ func (mc *AdminController) UpdatePaymentStatus(w http.ResponseWriter, r *http.Re
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
+	if req.OrderID=="" {
+		http.Error(w,"Missing order_id in request", http.StatusBadRequest)
+		return
+	}
 
 	err:=models.UpdatePaymentStatus(mc.DB, req.OrderID)
 	if err!=nil {
 		http.Error(w,"Failed to update payment status", http.StatusInternalServerError)
 		return
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode([]byte(`Payment Status Updated`))

@@ -36,7 +36,14 @@ func(mc *ChefController) UpdateChef(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "Invalid JSON body", http.StatusBadRequest)
         return
     }
-
+	if req.OrderID=="" {
+		http.Error(w,"Missing order_id in request", http.StatusBadRequest)
+		return
+	}
+	if req.ItemId==0{
+		http.Error(w,"Missing item_id in request", http.StatusBadRequest)
+		return
+	}
 	claims,ok:= r.Context().Value(middleware.UserContextKey).(jwt.MapClaims)
 	if !ok {
 		http.Error(w, "Forbidden - No Claims Found", http.StatusForbidden)
