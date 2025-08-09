@@ -1,22 +1,151 @@
 package controller
 
-import(
-	"net/http"
+import (
+	"strconv"
+	"MVC/pkg/models"
+	"MVC/pkg/types"
+	"MVC/pkg/middleware"
 	"database/sql"
+	"net/http"
+	"encoding/json"
+	"github.com/gorilla/mux"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 type ListController struct{
 	DB *sql.DB
 }
 
-func(mc *ListController) GetList(w http.ResponseWriter, r *http.Request) {
+func(lc *ListController) GetList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`This is itemlist`))
+	w.Write([]byte(`This is a render route for itemList`))
 }
 
-func(mc *ListController) GetPriceList(w http.ResponseWriter, r *http.Request) {
+func(lc *ListController) MakePriceList(w http.ResponseWriter, r *http.Request) {
+    var itemList []types.ItemList
+	 
+    err := json.NewDecoder(r.Body).Decode(&itemList)
+    if err != nil {
+        http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+        return
+    }
+	itemPriceList,err:=models.GetListDetails(lc.DB,itemList)
+	if err!=nil{
+		panic(err)
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`This is itemList page`))
+	if err := json.NewEncoder(w).Encode(itemPriceList); err != nil {
+        http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+    }
+}
+
+func(lc *ListController) CheckAvailiblity(w http.ResponseWriter,r *http.Request){
+	vars :=mux.Vars(r)
+	tablenoStr:=vars["tableno"]
+	tableno, err := strconv.ParseUint(tablenoStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid table number", http.StatusBadRequest)
+		return
+	}
+	status,err:= models.GetTableStatus(lc.DB,uint64(tableno))
+	if err!=nil{
+		http.Error(w,"Some Unknown error occured while fetching menu",http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(status); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
+ }
+
+func(lc *ListController) GetTableNo(w http.ResponseWriter,r *http.Request){
+	claims,ok:= r.Context().Value(middleware.UserContextKey).(jwt.MapClaims)
+	if !ok {
+		http.Error(w, "Forbidden - No Claims Found", http.StatusForbidden)
+		return
+	}
+
+	userID,ok:= claims["id"].(string)
+	if !ok {
+		http.Error(w, "Forbidden - No User Found", http.StatusForbidden)
+		return
+	}
+
+	tableNo,err:=models.GetCustomerTable(lc.DB,userID)
+	if err!=nil{
+		http.Error(w,"Some Unknown error occured while fetching tableno",http.StatusInternalServerError)
+		return
+	}
+	if tableNo==0 {
+		http.Error(w, "No Table Found", http.StatusForbidden)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(tableNo); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
+}
+
+func(lc *ListController) PlaceOrder(w http.ResponseWriter, r *http.Request) {
+	var order types.Order
+
+	claims,ok:= r.Context().Value(middleware.UserContextKey).(jwt.MapClaims)
+	if !ok {
+		http.Error(w, "Forbidden - No Claims Found", http.StatusForbidden)
+		return
+	}
+
+	userID, ok:= claims["id"].(string)
+	if !ok {
+		http.Error(w, "Forbidden - No User Found", http.StatusForbidden)
+		return
+	}
+
+	var orderList types.CompleteOrder
+    err := json.NewDecoder(r.Body).Decode(&orderList)
+    if err != nil {
+        http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+        return
+    }
+
+	order.OrderID = uuid.New().String()
+	order.CustomerID = userID
+	order.TableNo = orderList.Order.TableNo
+	order.Specifications = orderList.Order.Specifications
+	order.OrderedTime = orderList.Order.OrderedTime
+	order.ReceivedTime = sql.NullTime{Valid: false}
+	order.TotalFare = orderList.Order.TotalFare
+	order.PaymentStatus = "pending"
+
+	err=models.PlaceOrder(lc.DB,order)
+	if err!=nil{
+		http.Error(w,"Some Unknown error occured while placing order",http.StatusInternalServerError)
+		return
+	}
+
+	var subOrder []types.SubOrder
+
+	for _, item := range orderList.ItemList {
+		subOrder = append(subOrder, types.SubOrder{
+			OrderID:  order.OrderID,
+			ItemID:   item.ItemID,
+			Quantity: item.Quantity,
+		})
+	}
+
+	err=models.PlaceSubOrder(lc.DB,subOrder)
+	if err!=nil{
+		http.Error(w,"Some Unknown error occured while fetching menu",http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`Order Placed Successfully`))
 }

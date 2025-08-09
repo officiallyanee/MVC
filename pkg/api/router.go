@@ -10,7 +10,7 @@ import(
 )
 
 func Routing(){
-	router := mux.NewRouter().StrictSlash(true)
+	router := mux.NewRouter()
 	
 	authController := controller.AuthController{DB: utils.DB}
 	router.HandleFunc("/register", authController.Register).Methods("POST")
@@ -34,6 +34,15 @@ func Routing(){
 	chef := auth.PathPrefix("/chef").Subrouter()
 	chef.Use(middleware.RestrictTo("chef"))
 	chef.HandleFunc("", chefController.GetAllPendingOrders).Methods("GET")
+
+	listController:=controller.ListController{DB:utils.DB}
+	list := auth.PathPrefix("/itemList").Subrouter()
+	list.Use(middleware.RestrictTo("customer","chef","admin"))
+	list.HandleFunc("",listController.GetList).Methods("GET")
+	list.HandleFunc("/itemPriceList",listController.MakePriceList).Methods("POST")
+	list.HandleFunc("/tablestatus/{tableno}",listController.CheckAvailiblity).Methods("GET")
+	list.HandleFunc("/customerTableNo",listController.GetTableNo).Methods("GET")
+	list.HandleFunc("/order",listController.PlaceOrder).Methods("POST")
 
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
