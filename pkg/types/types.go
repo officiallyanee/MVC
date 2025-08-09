@@ -83,3 +83,12 @@ type OrderAndSubOrders struct{
 	Order    Order          `json:"order"`
 	SubOrders []SubOrder2	`json:"sub_orders"`
 }
+type OrderWithCustomerName struct {
+	Order              
+	CustomerName string `json:"customer_name"`
+}
+
+type OrderDetails struct {
+	Order     OrderWithCustomerName `json:"order"`
+	SubOrders []SubOrder2           `json:"sub_orders"`
+}
