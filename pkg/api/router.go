@@ -34,6 +34,7 @@ func Routing(){
 	chef := auth.PathPrefix("/chef").Subrouter()
 	chef.Use(middleware.RestrictTo("chef"))
 	chef.HandleFunc("", chefController.GetAllPendingOrders).Methods("GET")
+	chef.HandleFunc("", chefController.UpdateChef).Methods("PATCH")
 
 	listController:=controller.ListController{DB:utils.DB}
 	list := auth.PathPrefix("/itemList").Subrouter()

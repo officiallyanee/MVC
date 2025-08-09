@@ -41,8 +41,8 @@ func(mc *OrdersController) GetOrders(w http.ResponseWriter, r *http.Request) {
 
 func(mc *OrdersController) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	var req struct{
-		OrderID     string       `json:"orderID"`
-		ReceiveTime sql.NullTime `json:"receiveTime"`
+		OrderID     string       `json:"order_id"`
+		ReceiveTime sql.NullTime `json:"received_time"`
 	}
 	err := json.NewDecoder(r.Body).Decode(&req)
     if err != nil {

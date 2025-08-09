@@ -65,6 +65,7 @@ type SubOrder struct{
 	OrderID  string `json:"order_id"`
 	ItemID   uint64 `json:"item_id"`
 	Quantity uint64 `json:"qty"`
+	ChefID   string `json:"chef_id"`
 }
 
 type CompleteOrder struct{
@@ -72,3 +73,13 @@ type CompleteOrder struct{
 	ItemList []ItemList `json:"item_list"`
 }
 
+type SubOrder2 struct{
+	ItemID   uint64 		`json:"item_id"`
+	Quantity uint64 		`json:"qty"`
+	Name     string 		`json:"name"`
+	ChefID   sql.NullString `json:"chef_id"`
+}
+type OrderAndSubOrders struct{
+	Order    Order          `json:"order"`
+	SubOrders []SubOrder2	`json:"sub_orders"`
+}
