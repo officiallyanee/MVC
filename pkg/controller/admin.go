@@ -14,7 +14,7 @@ type AdminController struct{
 func(mc *AdminController) GetAllOrders(w http.ResponseWriter, r *http.Request) {
 	orders,err:= models.GetOrders(mc.DB)
 	if err!=nil{
-		http.Error(w,"Some Unknown error occured while fetching orders",http.StatusInternalServerError)
+		http.Error(w,"Failed to fetch orders",http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -44,5 +44,7 @@ func (mc *AdminController) UpdatePaymentStatus(w http.ResponseWriter, r *http.Re
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode([]byte(`Payment Status Updated`))
+	json.NewEncoder(w).Encode(map[string]string{
+        "message": "Payment status updated successfully",
+    })
 }

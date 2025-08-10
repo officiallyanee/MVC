@@ -28,7 +28,7 @@ func(mc *OrdersController) GetOrders(w http.ResponseWriter, r *http.Request) {
 
 	orders,err:= models.GetAllOrders(mc.DB,userID)
 	if err!=nil{
-		http.Error(w,"Some Unknown error occured while fetching orders",http.StatusInternalServerError)
+		http.Error(w,"Failed to fetch orders",http.StatusInternalServerError)
 		return
 	}
 
@@ -61,11 +61,11 @@ func(mc *OrdersController) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 
 	err = models.UpdateReceiveTime(mc.DB,req.OrderID,req.ReceiveTime)
 	if err!=nil{
-		http.Error(w,"Some Unknown error occured while fetching orders",http.StatusInternalServerError)
+		http.Error(w,"Failed to update receive time",http.StatusInternalServerError)
 		return
 	}
 	
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`Receive Time Updated`))
+	json.NewEncoder(w).Encode(map[string]string{"message":`Receive Time Updated`})
 }

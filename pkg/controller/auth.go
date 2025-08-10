@@ -77,7 +77,7 @@ func(ac *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 	})
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(`User registered successfully`))
+	json.NewEncoder(w).Encode(map[string]string{"message":`User registered successfully`})
 }
 
 func (ac *AuthController) Login(w http.ResponseWriter, r *http.Request) {
@@ -131,7 +131,7 @@ func (ac *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 	})
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"message": "Login successful"}`))
+	json.NewEncoder(w).Encode(map[string]string{"message": `Login successful`})
 }
 
 func generateSalt(length int) string {

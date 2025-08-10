@@ -17,12 +17,12 @@ func (mc *MenuController) GetDefaultMenu(w http.ResponseWriter, r *http.Request)
 
 	items, err := models.GetItemsByCategory(mc.DB, "Starters")
 	if err != nil {
-		http.Error(w, "Some Unknown error occured while fetching menu", http.StatusInternalServerError)
+		http.Error(w, "Failed to fetch menu", http.StatusInternalServerError)
 		return
 	}
 	categories, err := models.GetAllCategories(mc.DB)
 	if err != nil {
-		http.Error(w, "Some Unknown error occured while fetching categories", http.StatusInternalServerError)
+		http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -48,7 +48,7 @@ func (mc *MenuController) GetMenuByCategory(w http.ResponseWriter, r *http.Reque
 	}
 	categories, err := models.GetItemsByCategory(mc.DB, category)
 	if err!=nil {
-		http.Error(w,"Some Unknown error occured while fetching menu", http.StatusInternalServerError)
+		http.Error(w,"Failed fetching menu", http.StatusInternalServerError)
 		return
 	}
 	if len(categories)==0 {

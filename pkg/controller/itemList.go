@@ -20,7 +20,7 @@ type ListController struct{
 func(lc *ListController) GetList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`This is a render route for itemList`))
+	json.NewEncoder(w).Encode(map[string]string{"message":`This is a render route for itemList`})
 }
 
 func(lc *ListController) MakePriceList(w http.ResponseWriter, r *http.Request) {
@@ -60,10 +60,10 @@ func(lc *ListController) CheckAvailiblity(w http.ResponseWriter,r *http.Request)
 
 	status,err:= models.GetTableStatus(lc.DB,uint64(tableno))
 	if err!=nil{
-		http.Error(w,"Some Unknown error occured while fetching menu",http.StatusInternalServerError)
+		http.Error(w,"Failed to fetch table status",http.StatusInternalServerError)
 		return
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(status); err != nil {
@@ -86,7 +86,7 @@ func(lc *ListController) GetTableNo(w http.ResponseWriter,r *http.Request){
 
 	tableNo,err:=models.GetCustomerTable(lc.DB,userID)
 	if err!=nil{
-		http.Error(w,"Some Unknown error occured while fetching tableno",http.StatusInternalServerError)
+		http.Error(w,"Failed to get tableno",http.StatusInternalServerError)
 		return
 	}
 	if tableNo==0 {
@@ -142,7 +142,7 @@ func(lc *ListController) PlaceOrder(w http.ResponseWriter, r *http.Request) {
 
 	err=models.PlaceOrder(lc.DB,order)
 	if err!=nil{
-		http.Error(w,"Some Unknown error occured while placing order",http.StatusInternalServerError)
+		http.Error(w,"Failed to place order",http.StatusInternalServerError)
 		return
 	}
 
@@ -158,11 +158,11 @@ func(lc *ListController) PlaceOrder(w http.ResponseWriter, r *http.Request) {
 
 	err=models.PlaceSubOrder(lc.DB,subOrder)
 	if err!=nil{
-		http.Error(w,"Some Unknown error occured while fetching menu",http.StatusInternalServerError)
+		http.Error(w,"Failed to place suborder",http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`Order Placed Successfully`))
+	json.NewEncoder(w).Encode(map[string]string{"message":`Order Placed Successfully`})
 }

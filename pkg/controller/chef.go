@@ -16,7 +16,7 @@ type ChefController struct{
 func(mc *ChefController) GetAllPendingOrders(w http.ResponseWriter, r *http.Request) {
 	orders,err:= models.GetPendingOrders(mc.DB)
 	if err!=nil{
-		http.Error(w,"Some Unknown error occured while fetching orders",http.StatusInternalServerError)
+		http.Error(w,"Failed to fetch orders",http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -58,11 +58,11 @@ func(mc *ChefController) UpdateChef(w http.ResponseWriter, r *http.Request) {
 
 	err = models.UpdateChef(mc.DB,req.OrderID,req.ItemId,userID)
 	if err!=nil{
-		http.Error(w,"Some Unknown error occured while fetching orders",http.StatusInternalServerError)
+		http.Error(w,"Failed to update chef",http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`Chef updated`))
+	json.NewEncoder(w).Encode(map[string]string{"message":`Chef updated`})
 }
