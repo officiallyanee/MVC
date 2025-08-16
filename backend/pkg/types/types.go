@@ -14,11 +14,11 @@ type User struct {
     UserID   string
     Name     string
     Email    string
-    PwdStore string
+    PasswordStore string
     Role     string
 }
 
-type Req struct {
+type RegisterReq struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -40,14 +40,14 @@ type Category struct {
 
 type ItemPriceList struct {
 	ItemID       uint64  `json:"item_id"`
-	Name         string  `json:"name"`
-	Quantity	 uint64  `json:"qty"`
+	ItemName     string  `json:"item_name"`
+	Quantity	 uint64  `json:"quantity"`
 	Price        float64 `json:"price"`
 }
 
 type ItemList struct{
 	ItemID       uint64  `json:"item_id"`
-	Quantity	 uint64  `json:"qty"`
+	Quantity	 uint64  `json:"quantity"`
 }
 
 type Order struct{
@@ -64,7 +64,7 @@ type Order struct{
 type SubOrder struct{
 	OrderID  string `json:"order_id"`
 	ItemID   uint64 `json:"item_id"`
-	Quantity uint64 `json:"qty"`
+	Quantity uint64 `json:"quantity"`
 	ChefID   string `json:"chef_id"`
 }
 
@@ -73,15 +73,15 @@ type CompleteOrder struct{
 	ItemList []ItemList `json:"item_list"`
 }
 
-type SubOrder2 struct{
+type SubOrderWithName struct{
 	ItemID   uint64 		`json:"item_id"`
-	Quantity uint64 		`json:"qty"`
+	Quantity uint64 		`json:"quantity"`
 	Name     string 		`json:"name"`
 	ChefID   sql.NullString `json:"chef_id"`
 }
 type OrderAndSubOrders struct{
-	Order    Order          `json:"order"`
-	SubOrders []SubOrder2	`json:"sub_orders"`
+	Order    Order          		`json:"order"`
+	SubOrders []SubOrderWithName	`json:"sub_orders"`
 }
 type OrderWithCustomerName struct {
 	Order              
@@ -90,5 +90,5 @@ type OrderWithCustomerName struct {
 
 type OrderDetails struct {
 	Order     OrderWithCustomerName `json:"order"`
-	SubOrders []SubOrder2           `json:"sub_orders"`
+	SubOrders []SubOrderWithName           `json:"sub_orders"`
 }

@@ -1,12 +1,12 @@
 package models
 
 import (
-	"database/sql"
 	"MVC/pkg/types"
+	"database/sql"
 )
 
 func GetAllOrders(db *sql.DB, userID string) ([]types.Order, error) {
-	query:= "SELECT * FROM orders WHERE customer_id = ? ORDER BY payment_status = 'pending' DESC"
+	query := "SELECT * FROM orders WHERE customer_id = ? ORDER BY payment_status = 'pending' DESC"
 	rows, err := db.Query(query, userID)
 	if err != nil {
 		return nil, err

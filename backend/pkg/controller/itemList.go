@@ -1,66 +1,66 @@
 package controller
 
 import (
-	"strconv"
+	"MVC/pkg/middleware"
 	"MVC/pkg/models"
 	"MVC/pkg/types"
-	"MVC/pkg/middleware"
 	"database/sql"
-	"net/http"
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
+	"net/http"
+	"strconv"
 )
 
-type ListController struct{
+type ListController struct {
 	DB *sql.DB
 }
 
-func(lc *ListController) GetList(w http.ResponseWriter, r *http.Request) {
+func (lc *ListController) GetList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message":`This is a render route for itemList`})
+	json.NewEncoder(w).Encode(map[string]string{"message": `This is a render route for itemList`})
 }
 
-func(lc *ListController) MakePriceList(w http.ResponseWriter, r *http.Request) {
-    var itemList []types.ItemList
-	 
-    err := json.NewDecoder(r.Body).Decode(&itemList)
-    if err != nil {
-        http.Error(w, "Invalid JSON body", http.StatusBadRequest)
-        return
-    }
-	if len(itemList) == 0 {
-        http.Error(w, "Item list cannot be empty", http.StatusBadRequest)
-        return
-    }
+func (lc *ListController) MakePriceList(w http.ResponseWriter, r *http.Request) {
+	var itemList []types.ItemList
 
-	itemPriceList,err:=models.GetListDetails(lc.DB,itemList)
-	if err!=nil{
+	err := json.NewDecoder(r.Body).Decode(&itemList)
+	if err != nil {
+		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+		return
+	}
+	if len(itemList) == 0 {
+		http.Error(w, "Item list cannot be empty", http.StatusBadRequest)
+		return
+	}
+
+	itemPriceList, err := models.GetListDetails(lc.DB, itemList)
+	if err != nil {
 		http.Error(w, "Failed to retrieve price list details", http.StatusInternalServerError)
-    	return
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(itemPriceList); err != nil {
-        http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-    }
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
 }
 
-func(lc *ListController) CheckAvailiblity(w http.ResponseWriter,r *http.Request){
-	vars :=mux.Vars(r)
-	tablenoStr:=vars["tableno"]
+func (lc *ListController) CheckAvailiblity(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	tablenoStr := vars["tableno"]
 	tableno, err := strconv.ParseUint(tablenoStr, 10, 64)
 	if err != nil {
 		http.Error(w, "Invalid table number", http.StatusBadRequest)
 		return
 	}
 
-	status,err:= models.GetTableStatus(lc.DB,uint64(tableno))
-	if err!=nil{
-		http.Error(w,"Failed to fetch table status",http.StatusInternalServerError)
+	status, err := models.GetTableStatus(lc.DB, uint64(tableno))
+	if err != nil {
+		http.Error(w, "Failed to fetch table status", http.StatusInternalServerError)
 		return
 	}
 
@@ -69,27 +69,27 @@ func(lc *ListController) CheckAvailiblity(w http.ResponseWriter,r *http.Request)
 	if err := json.NewEncoder(w).Encode(status); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 	}
- }
+}
 
-func(lc *ListController) GetTableNo(w http.ResponseWriter,r *http.Request){
-	claims,ok:= r.Context().Value(middleware.UserContextKey).(jwt.MapClaims)
+func (lc *ListController) GetTableNo(w http.ResponseWriter, r *http.Request) {
+	claims, ok := r.Context().Value(middleware.UserContextKey).(jwt.MapClaims)
 	if !ok {
 		http.Error(w, "Forbidden - No Claims Found", http.StatusForbidden)
 		return
 	}
 
-	userID,ok:= claims["id"].(string)
+	userID, ok := claims["id"].(string)
 	if !ok {
 		http.Error(w, "Forbidden - No User Found", http.StatusForbidden)
 		return
 	}
 
-	tableNo,err:=models.GetCustomerTable(lc.DB,userID)
-	if err!=nil{
-		http.Error(w,"Failed to get tableno",http.StatusInternalServerError)
+	tableNo, err := models.GetCustomerTable(lc.DB, userID)
+	if err != nil {
+		http.Error(w, "Failed to get tableno", http.StatusInternalServerError)
 		return
 	}
-	if tableNo==0 {
+	if tableNo == 0 {
 		http.Error(w, "No Table Found", http.StatusForbidden)
 		return
 	}
@@ -101,27 +101,27 @@ func(lc *ListController) GetTableNo(w http.ResponseWriter,r *http.Request){
 	}
 }
 
-func(lc *ListController) PlaceOrder(w http.ResponseWriter, r *http.Request) {
+func (lc *ListController) PlaceOrder(w http.ResponseWriter, r *http.Request) {
 	var order types.Order
 
-	claims,ok:= r.Context().Value(middleware.UserContextKey).(jwt.MapClaims)
+	claims, ok := r.Context().Value(middleware.UserContextKey).(jwt.MapClaims)
 	if !ok {
 		http.Error(w, "Forbidden - No Claims Found", http.StatusForbidden)
 		return
 	}
 
-	userID, ok:= claims["id"].(string)
+	userID, ok := claims["id"].(string)
 	if !ok {
 		http.Error(w, "Forbidden - No User Found", http.StatusForbidden)
 		return
 	}
 
 	var orderList types.CompleteOrder
-    err := json.NewDecoder(r.Body).Decode(&orderList)
-    if err != nil {
-        http.Error(w, "Invalid JSON body", http.StatusBadRequest)
-        return
-    }
+	err := json.NewDecoder(r.Body).Decode(&orderList)
+	if err != nil {
+		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+		return
+	}
 	if len(orderList.ItemList) == 0 {
 		http.Error(w, "Cannot place an order with no items", http.StatusBadRequest)
 		return
@@ -140,9 +140,9 @@ func(lc *ListController) PlaceOrder(w http.ResponseWriter, r *http.Request) {
 	order.TotalFare = orderList.Order.TotalFare
 	order.PaymentStatus = "pending"
 
-	err=models.PlaceOrder(lc.DB,order)
-	if err!=nil{
-		http.Error(w,"Failed to place order",http.StatusInternalServerError)
+	err = models.PlaceOrder(lc.DB, order)
+	if err != nil {
+		http.Error(w, "Failed to place order", http.StatusInternalServerError)
 		return
 	}
 
@@ -156,13 +156,13 @@ func(lc *ListController) PlaceOrder(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	err=models.PlaceSubOrder(lc.DB,subOrder)
-	if err!=nil{
-		http.Error(w,"Failed to place suborder",http.StatusInternalServerError)
+	err = models.PlaceSubOrder(lc.DB, subOrder)
+	if err != nil {
+		http.Error(w, "Failed to place suborder", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message":`Order Placed Successfully`})
+	json.NewEncoder(w).Encode(map[string]string{"message": `Order Placed Successfully`})
 }

@@ -42,22 +42,22 @@ func (mc *MenuController) GetDefaultMenu(w http.ResponseWriter, r *http.Request)
 func (mc *MenuController) GetMenuByCategory(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	category := vars["category"]
-	if category=="" {
-		http.Error(w,"Category cannot be empty", http.StatusBadRequest)
+	if category == "" {
+		http.Error(w, "Category cannot be empty", http.StatusBadRequest)
 		return
 	}
-	categories, err := models.GetItemsByCategory(mc.DB, category)
-	if err!=nil {
-		http.Error(w,"Failed fetching menu", http.StatusInternalServerError)
+	items, err := models.GetItemsByCategory(mc.DB, category)
+	if err != nil {
+		http.Error(w, "Failed fetching menu", http.StatusInternalServerError)
 		return
 	}
-	if len(categories)==0 {
-		http.Error(w,"No items found for this category", http.StatusNotFound)
+	if len(items) == 0 {
+		http.Error(w, "No items found for this category", http.StatusNotFound)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(categories); err != nil {
+	if err := json.NewEncoder(w).Encode(items); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 	}
 }

@@ -1,22 +1,22 @@
 package controller
 
-import(
-	"net/http"
-	"database/sql"
+import (
+	"MVC/pkg/middleware"
 	"MVC/pkg/models"
+	"database/sql"
 	"encoding/json"
 	"github.com/golang-jwt/jwt/v5"
-	"MVC/pkg/middleware"
+	"net/http"
 )
 
-type ChefController struct{
+type ChefController struct {
 	DB *sql.DB
 }
 
-func(mc *ChefController) GetAllPendingOrders(w http.ResponseWriter, r *http.Request) {
-	orders,err:= models.GetPendingOrders(mc.DB)
-	if err!=nil{
-		http.Error(w,"Failed to fetch orders",http.StatusInternalServerError)
+func (cc *ChefController) GetAllPendingOrders(w http.ResponseWriter, r *http.Request) {
+	orders, err := models.GetPendingOrders(cc.DB)
+	if err != nil {
+		http.Error(w, "Failed to fetch orders", http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -26,43 +26,43 @@ func(mc *ChefController) GetAllPendingOrders(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-func(mc *ChefController) UpdateChef(w http.ResponseWriter, r *http.Request) {
-	var req struct{
-		OrderID     string   `json:"order_id"`
-		ItemId      uint64   `json:"item_id"`
+func (cc *ChefController) UpdateChef(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		OrderID string `json:"order_id"`
+		ItemId  uint64 `json:"item_id"`
 	}
 	err := json.NewDecoder(r.Body).Decode(&req)
-    if err != nil {
-        http.Error(w, "Invalid JSON body", http.StatusBadRequest)
-        return
-    }
-	if req.OrderID=="" {
-		http.Error(w,"Missing order_id in request", http.StatusBadRequest)
+	if err != nil {
+		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
 		return
 	}
-	if req.ItemId==0{
-		http.Error(w,"Missing item_id in request", http.StatusBadRequest)
+	if req.OrderID == "" {
+		http.Error(w, "Missing order_id in request", http.StatusBadRequest)
 		return
 	}
-	claims,ok:= r.Context().Value(middleware.UserContextKey).(jwt.MapClaims)
+	if req.ItemId == 0 {
+		http.Error(w, "Missing item_id in request", http.StatusBadRequest)
+		return
+	}
+	claims, ok := r.Context().Value(middleware.UserContextKey).(jwt.MapClaims)
 	if !ok {
 		http.Error(w, "Forbidden - No Claims Found", http.StatusForbidden)
 		return
 	}
 
-	userID, ok:= claims["id"].(string)
+	userID, ok := claims["id"].(string)
 	if !ok {
 		http.Error(w, "Forbidden - No User Found", http.StatusForbidden)
 		return
 	}
 
-	err = models.UpdateChef(mc.DB,req.OrderID,req.ItemId,userID)
-	if err!=nil{
-		http.Error(w,"Failed to update chef",http.StatusInternalServerError)
+	err = models.UpdateChef(cc.DB, req.OrderID, req.ItemId, userID)
+	if err != nil {
+		http.Error(w, "Failed to update chef", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message":`Chef updated`})
+	json.NewEncoder(w).Encode(map[string]string{"message": `Chef updated`})
 }

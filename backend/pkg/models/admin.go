@@ -45,9 +45,9 @@ func GetOrders(db *sql.DB) ([]types.OrderDetails, error) {
 			return nil, err
 		}
 
-		var subOrders []types.SubOrder2
+		var subOrders []types.SubOrderWithName
 		for subRows.Next() {
-			var subOrder types.SubOrder2
+			var subOrder types.SubOrderWithName
 			err := subRows.Scan(
 				&subOrder.ItemID,
 				&subOrder.Quantity,

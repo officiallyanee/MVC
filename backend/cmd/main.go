@@ -22,6 +22,6 @@ func main() {
 	}
 	defer utils.CloseDatabase()
 
-    api.Routing()
+    api.StartServer()
 
 }

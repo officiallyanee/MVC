@@ -49,7 +49,7 @@ func GetPendingOrders(db *sql.DB) ([]types.OrderAndSubOrders, error) {
 		}
 
 		for subOrdersRows.Next() {
-			var subOrder types.SubOrder2
+			var subOrder types.SubOrderWithName
 			if err := subOrdersRows.Scan(
 				&subOrder.ItemID,
 				&subOrder.Quantity,

@@ -23,7 +23,7 @@ func GetListDetails(db *sql.DB, list []types.ItemList) (*[]types.ItemPriceList,e
 		}
 		itemList:=types.ItemPriceList{
 			ItemID:  item.ItemID,
-			Name:    price.ItemName,
+			ItemName:    price.ItemName,
 			Quantity:item.Quantity,
 			Price:   price.ItemPrice*float64(item.Quantity),
 		}
