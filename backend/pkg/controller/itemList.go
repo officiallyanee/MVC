@@ -103,7 +103,6 @@ func (lc *ListController) GetTableNo(w http.ResponseWriter, r *http.Request) {
 
 func (lc *ListController) PlaceOrder(w http.ResponseWriter, r *http.Request) {
 	var order types.Order
-
 	claims, ok := r.Context().Value(middleware.UserContextKey).(jwt.MapClaims)
 	if !ok {
 		http.Error(w, "Forbidden - No Claims Found", http.StatusForbidden)
@@ -116,7 +115,7 @@ func (lc *ListController) PlaceOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var orderList types.CompleteOrder
+	var orderList types.OrderSubDetails
 	err := json.NewDecoder(r.Body).Decode(&orderList)
 	if err != nil {
 		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
@@ -126,18 +125,18 @@ func (lc *ListController) PlaceOrder(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Cannot place an order with no items", http.StatusBadRequest)
 		return
 	}
-	if orderList.Order.TableNo <= 0 || orderList.Order.TableNo > 50 {
+	if orderList.TableNo <= 0 || orderList.TableNo > 50 {
 		http.Error(w, "Invalid table number", http.StatusBadRequest)
 		return
 	}
 
 	order.OrderID = uuid.New().String()
 	order.CustomerID = userID
-	order.TableNo = orderList.Order.TableNo
-	order.Specifications = orderList.Order.Specifications
-	order.OrderedTime = orderList.Order.OrderedTime
+	order.TableNo = orderList.TableNo
+	order.Specifications = orderList.Specifications
+	order.OrderedTime = orderList.OrderedTime
 	order.ReceivedTime = sql.NullTime{Valid: false}
-	order.TotalFare = orderList.Order.TotalFare
+	order.TotalFare = orderList.TotalFare
 	order.PaymentStatus = "pending"
 
 	err = models.PlaceOrder(lc.DB, order)

@@ -46,10 +46,10 @@ type ItemPriceList struct {
 }
 
 type ItemList struct{
+
 	ItemID       uint64  `json:"item_id"`
 	Quantity	 uint64  `json:"quantity"`
 }
-
 type Order struct{
 	OrderID        string 		`json:"order_id"`
 	CustomerID     string 		`json:"customer_id"`
@@ -71,6 +71,19 @@ type SubOrder struct{
 type CompleteOrder struct{
 	Order    Order      `json:"order"`
 	ItemList []ItemList `json:"item_list"`
+}
+
+type CompleteOrderWithPrice struct {
+	Order
+	ItemPriceList []ItemPriceList `json:"item_list"`
+}
+
+type OrderSubDetails struct{
+	TableNo        uint64 		`json:"table_no"`
+	Specifications string 		`json:"specifications"`
+	OrderedTime    string 		`json:"ordered_time"`
+	TotalFare      float64 		`json:"total_fare"`
+	ItemList       []ItemList 	`json:"item_list"`
 }
 
 type SubOrderWithName struct{

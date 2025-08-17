@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"
+	"time"
 )
 
 type OrdersController struct {
@@ -41,8 +42,8 @@ func (oc *OrdersController) GetOrders(w http.ResponseWriter, r *http.Request) {
 
 func (oc *OrdersController) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		OrderID     string       `json:"order_id"`
-		ReceiveTime sql.NullTime `json:"received_time"`
+		OrderID      string       `json:"order_id"`
+		ReceivedTime string       `json:"received_time"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -54,12 +55,17 @@ func (oc *OrdersController) UpdateOrder(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "Missing order_id in request", http.StatusBadRequest)
 		return
 	}
-	if !req.ReceiveTime.Valid {
-		http.Error(w, "Missing received_time in request", http.StatusBadRequest)
+	parsedTime, err := time.Parse("2006-01-02 15:04:05", req.ReceivedTime)
+	if err != nil {
+		http.Error(w, "Invalid time format", http.StatusBadRequest)
 		return
 	}
 
-	err = models.UpdateReceiveTime(oc.DB, req.OrderID, req.ReceiveTime)
+	receivedTime := sql.NullTime{
+		Time: parsedTime,
+		Valid: true,
+}
+	err = models.UpdateReceiveTime(oc.DB, req.OrderID, receivedTime)
 	if err != nil {
 		http.Error(w, "Failed to update receive time", http.StatusInternalServerError)
 		return

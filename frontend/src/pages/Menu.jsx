@@ -56,11 +56,11 @@ function MenuPage() {
       if (existingItem) {
         return prevList.map(item =>
           item.item_id === productId
-            ? { ...item, qty: item.qty + 1 }
+            ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       } else {
-        return [...prevList, { item_id: productId, qty: 1 }];
+        return [...prevList, { item_id: productId, quantity: 1 }];
       }
     });
   };
@@ -71,7 +71,7 @@ function MenuPage() {
 
       if (existingItem && existingItem.qty > 1) {
         return prevList.map(item =>
-          item.item_id === productId ? { ...item, qty: item.qty - 1 } : item
+          item.item_id === productId ? { ...item, quantity: item.quantity - 1 } : item
         );
       } else if (existingItem && existingItem.qty === 1) {
         return prevList.filter(item => item.item_id !== productId);
@@ -97,7 +97,7 @@ function MenuPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 place-items-center">
 
           {menuItems.map((item) => {
-            const quantity = itemList.find(itemList => itemList.item_id === item.item_id)?.qty || 0;
+            const quantity = itemList.find(itemList => itemList.item_id === item.item_id)?.quantity || 0;
             return (
               <Item
                 key={item.item_id}
