@@ -12,7 +12,7 @@ import (
 func StartServer() {
 	router := mux.NewRouter()
 	router.Use(middleware.CORSMiddleware)
-	 router.Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         w.WriteHeader(http.StatusNoContent)
     })
 
@@ -32,7 +32,7 @@ func StartServer() {
 	adminController := controller.AdminController{DB: utils.DB}
 	adminSubRouter := auth.PathPrefix("/admin").Subrouter()
 	adminSubRouter.Use(middleware.RestrictTo("admin"))
-	adminSubRouter.HandleFunc("", adminController.GetAllOrders).Methods("GET")
+	adminSubRouter.HandleFunc("/{search}/{page}", adminController.GetAllOrders).Methods("GET")
 
 	chefController := controller.ChefController{DB: utils.DB}
 	chefSubRouter := auth.PathPrefix("/chef").Subrouter()

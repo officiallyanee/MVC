@@ -2,9 +2,13 @@ package controller
 
 import (
 	"MVC/pkg/models"
+	"MVC/pkg/types"
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type AdminController struct {
@@ -12,14 +16,32 @@ type AdminController struct {
 }
 
 func (ac *AdminController) GetAllOrders(w http.ResponseWriter, r *http.Request) {
-	orders, err := models.GetOrders(ac.DB)
+	vars := mux.Vars(r)
+	search := vars["search"]
+	page,err := strconv.ParseUint(vars["page"],10,64)
+	if err != nil {
+		http.Error(w, "Invalid page number", http.StatusBadRequest)
+		return
+	}
+	if search == "all" {
+        search = ""
+    }
+	orders,totalPages, err := models.GetOrders(ac.DB, search,page)
 	if err != nil {
 		http.Error(w, "Failed to fetch orders", http.StatusInternalServerError)
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(orders); err != nil {
+	response := struct {
+		Orders      []types.OrderDetails `json:"orders"`
+		TotalPages  uint64               `json:"total_pages"`
+	}{
+		Orders: orders,
+		TotalPages:totalPages,
+	}
+	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 	}
 }

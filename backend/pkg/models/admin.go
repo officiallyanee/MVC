@@ -5,15 +5,29 @@ import (
 	"database/sql"
 )
 
-func GetOrders(db *sql.DB) ([]types.OrderDetails, error) {
-	dataQuery:=`SELECT o.order_id, o.customer_id, o.table_no, o.specifications, o.ordered_time, 
-                o.received_time, o.total_fare, o.payment_status, ld.name 
-                FROM orders o
-                INNER JOIN login_details ld ON o.customer_id = ld.user_id
-                ORDER BY (o.payment_status = 'pending') DESC, o.ordered_time DESC`
-	rows,err:=db.Query(dataQuery)
+func GetOrders(db *sql.DB, search string, page uint64) ([]types.OrderDetails, uint64, error) {
+	searchSql := `
+		SELECT COUNT(*) as total 
+		FROM orders 
+		INNER JOIN login_details ON orders.customer_id = login_details.user_id 
+		WHERE login_details.name LIKE ?`
+
+	var total uint64
+	err := db.QueryRow(searchSql, "%"+search+"%").Scan(&total)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	dataQuery:=`
+    SELECT orders.*, login_details.name 
+    FROM orders 
+    INNER JOIN login_details ON orders.customer_id = login_details.user_id
+    WHERE login_details.name LIKE ?
+    ORDER BY (payment_status = 'pending') DESC, orders.ordered_time DESC
+    LIMIT 8 OFFSET ?`
+	rows,err:=db.Query(dataQuery, "%"+search+"%", (page-1)*8)
 	if err!=nil {
-		return nil,err
+		return nil,total,err
 	}
 	defer rows.Close()
 
@@ -38,11 +52,11 @@ func GetOrders(db *sql.DB) ([]types.OrderDetails, error) {
 			&orderInfo.CustomerName,
 		)
 		if err!=nil {
-			return nil, err
+			return nil,total, err
 		}
 		subRows,err:= db.Query(subOrderSql, orderInfo.OrderID)
 		if err!= nil {
-			return nil, err
+			return nil,total, err
 		}
 
 		var subOrders []types.SubOrderWithName
@@ -56,7 +70,7 @@ func GetOrders(db *sql.DB) ([]types.OrderDetails, error) {
 			)
 			if err!=nil {
 				subRows.Close() 
-				return nil, err
+				return nil,total, err
 			}
 			subOrders=append(subOrders, subOrder)
 		}
@@ -68,9 +82,9 @@ func GetOrders(db *sql.DB) ([]types.OrderDetails, error) {
 	}
 	err=rows.Err()
 	if err!=nil {
-		return nil,err
+		return nil,total,err
 	}
-	return allOrderDetails,nil
+	return allOrderDetails,total,nil
 }
 
 func UpdatePaymentStatus(db *sql.DB, orderID string) error {

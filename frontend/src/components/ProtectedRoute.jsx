@@ -2,14 +2,21 @@ import { useAuth } from "../provider/AuthProvider";
 import { Navigate, useLocation } from "react-router-dom";
 
 export const ProtectedRoute = ({ children, requiredPermissions }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth(); 
   const location = useLocation();
+  if (loading) {
+    return <div>Loading...</div>; 
+  }
 
-  const hasPermission = user.permissions.some(permission => 
+  if (!user || !user.username) {
+    return <Navigate to="/login" state={{ path: location.pathname }} replace />;
+  }
+  const userPermissions = user.permissions || [];
+  const hasPermission = userPermissions.some(permission => 
     requiredPermissions.includes(permission)
   );
 
-  if (!user.username || !hasPermission) {
+  if (!hasPermission) {
     return <Navigate to="/login" state={{ path: location.pathname }} replace />;
   }
 
