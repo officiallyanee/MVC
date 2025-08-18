@@ -77,7 +77,6 @@ func (lc *ListController) GetTableNo(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Forbidden - No Claims Found", http.StatusForbidden)
 		return
 	}
-
 	userID, ok := claims["id"].(string)
 	if !ok {
 		http.Error(w, "Forbidden - No User Found", http.StatusForbidden)

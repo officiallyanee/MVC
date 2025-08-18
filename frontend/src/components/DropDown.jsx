@@ -3,11 +3,9 @@ import axios from 'axios';
 
 function CustomDropdown({ categories, onSelectCategory, setMenuItems }) {
     const [isOpen, setIsOpen] = useState(false);
-    // Initialize with the first category or a placeholder
     const [selectedCategory, setSelectedCategory] = useState(categories.length > 0 ? categories[0] : null);
     const dropdownRef = useRef(null);
 
-    // Effect to handle clicks outside of the dropdown to close it
     useEffect(() => {
       const handleClickOutside = (event) => {
         if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -23,27 +21,23 @@ function CustomDropdown({ categories, onSelectCategory, setMenuItems }) {
     }, [isOpen]);
 
     const handleSelect = async (category) => {
-      setSelectedCategory(category.category);
+      setSelectedCategory(category);
       setIsOpen(false);
       const response = await axios.get(`http://localhost:8080/menu/${category.category}`);
       setMenuItems(response.data);
       console.log(response.data);
-      if (onSelectCategory) {
         onSelectCategory(category.category);
-      }
     };
 
     return (
-      <div className="relative w-52" ref={dropdownRef}>
-        {/* This is the main button, styled with your specific classes */}
+      <div className="relative w-52 mb-2" ref={dropdownRef}>
         <div
           className="w-52 h-14 relative bg-black/30 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] shadow-[inset_0px_2px_8px_0px_rgba(255,255,255,0.20)] backdrop-blur-[2px] overflow-hidden cursor-pointer flex items-center justify-center"
           onClick={() => setIsOpen(!isOpen)}
         >
           <div className="text-center text-white text-3xl font-normal font-['Pompiere'] tracking-wide">
-            {selectedCategory ? selectedCategory.category : 'Select...'}
+            {selectedCategory ? selectedCategory.category : 'Starters'}
           </div>
-          {/* Arrow icon inspired by your second example */}
           <svg
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -57,8 +51,6 @@ function CustomDropdown({ categories, onSelectCategory, setMenuItems }) {
             />
           </svg>
         </div>
-
-        {/* This is the dropdown panel */}
         {isOpen && (
           <div className="absolute top-full mt-2 w-52 z-10 origin-top-right rounded-md bg-black/50 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] backdrop-blur-[2px] outline-1 -outline-offset-1 outline-white/10">
             <div className="py-1">

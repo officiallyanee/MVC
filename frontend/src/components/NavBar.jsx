@@ -8,7 +8,7 @@ export default function NavBar() {
   const isChef = user && user.role === 'chef';
 
   return (
-    <nav className="z-5 left-[28.6%] top-[4%] absolute inline-flex justify-start items-center gap-[2.7vw]">
+    <nav className="z-5 left-[24%] top-[4%] absolute inline-flex justify-start items-center gap-[2.7vw]">
       {navItems.map((item) => (
         <NavLink
           key={item}
@@ -27,7 +27,7 @@ export default function NavBar() {
             isActive ? 'text-yellow-300' : 'text-white hover:text-yellow-200'
           }`}
         >
-          Admin
+          ADMIN
         </NavLink>
       )}
       {isChef && (
@@ -37,7 +37,7 @@ export default function NavBar() {
             isActive ? 'text-yellow-300' : 'text-white hover:text-yellow-200'
           }`}
         >
-          Chef
+          CHEF
         </NavLink>
       )}
       {user && (
@@ -45,7 +45,7 @@ export default function NavBar() {
           onClick={logout}
           className="cursor-pointer text-center font-normal font-['Pompiere'] tracking-wide text-[clamp(1rem,3.3vw,3rem)] transition-colors duration-300 text-white hover:text-yellow-200"
         >
-          Logout
+          LOGOUT
         </button>
       )}
     </nav>

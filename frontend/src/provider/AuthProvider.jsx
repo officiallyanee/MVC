@@ -25,10 +25,8 @@ export const AuthProvider = ({ children }) => {
     const navigate = useNavigate();
     const location = useLocation();
     
-    // ADD THIS: Loading state
     const [loading, setLoading] = useState(true);
 
-    // MODIFY THIS: Update the initial state
     const [user, setUser] = useState(() => {
         try {
             const storedUser = localStorage.getItem('user');
@@ -37,24 +35,18 @@ export const AuthProvider = ({ children }) => {
                 return {
                     username: parsed.username || "",
                     role: parsed.role || "",
-                    permissions: getRolePermissions(parsed.role) || [] // ADD THIS LINE
+                    permissions: getRolePermissions(parsed.role) || [] 
                 };
             }
-            return { username: "", role: "", permissions: [] }; // MODIFY THIS LINE
+            return { username: "", role: "", permissions: [] }; 
         } catch (e) {
-            return { username: "", role: "", permissions: [] }; // MODIFY THIS LINE
+            return { username: "", role: "", permissions: [] }; 
         }
     });
 
-    // ADD THIS: Check authentication on app load
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                // Optional: If you have a verify endpoint, uncomment this
-                // const response = await axios.get("http://localhost:8080/verify-token");
-                // Handle verification...
-                
-                // For now, just set loading to false
                 setLoading(false);
             } catch (error) {
                 console.error("Auth check failed:", error);
@@ -79,7 +71,6 @@ export const AuthProvider = ({ children }) => {
             const response = await axios.post("http://localhost:8080/login", credentials);
             const userData = response.data;
 
-            // MODIFY THIS: Add permissions
             setUser({
                 username: userData.username,
                 role: userData.role,
@@ -133,13 +124,12 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error("Logout failed:", error);
         } finally {
-            setUser({ username: "", role: "", permissions: [] }); // MODIFY THIS LINE
+            setUser({ username: "", role: "", permissions: [] }); 
             navigate("/login");
         }
     };
 
-    // MODIFY THIS: Add loading to the value
-    const value = { user, loading, login, signup, logout }; // ADD loading here
+    const value = { user, loading, login, signup, logout };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -66,19 +66,21 @@ function MenuPage() {
   };
 
   const subQuantity = (productId) => {
+    console.log("Subtract clicked for :", productId);
     setItemList(prevList => {
       const existingItem = prevList.find(item => item.item_id === productId);
-
-      if (existingItem && existingItem.qty > 1) {
+      console.log(existingItem)
+      if (existingItem && existingItem.quantity > 1) {
         return prevList.map(item =>
           item.item_id === productId ? { ...item, quantity: item.quantity - 1 } : item
         );
-      } else if (existingItem && existingItem.qty === 1) {
+      } else if (existingItem && existingItem.quantity === 1) {
         return prevList.filter(item => item.item_id !== productId);
       }
 
       return prevList;
     });
+    console.log(itemList);
   };
   
   return (
@@ -94,7 +96,7 @@ function MenuPage() {
           onSelectCategory={handleSelection}
           setMenuItems={setMenuItems}
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 place-items-center">
+        <div className="h-[calc(100vh-200px)] w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 place-items-center overflow-y-scroll pt-2 ">
 
           {menuItems.map((item) => {
             const quantity = itemList.find(itemList => itemList.item_id === item.item_id)?.quantity || 0;

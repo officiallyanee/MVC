@@ -50,10 +50,10 @@ function ItemList() {
                 total_fare: calculateTotal(),
                 item_list: itemPriceList
             }, {
-    headers: {
-        'Content-Type': 'application/json'
-    }
-})
+            headers: {
+                'Content-Type': 'application/json'
+            }
+            })
             console.log(response.data);
         } catch (err) {
             console.log(err);
@@ -73,7 +73,8 @@ function ItemList() {
                 console.log(response.data);
                 setItemPriceList(response.data);
                 const tableResponse = await axios.get("http://localhost:8080/itemList/customerTableNo");
-                setCustomerTableNo(tableResponse.data.customerTableNo);
+                setCustomerTableNo(tableResponse.data);
+                setTableNo(tableResponse.data);
             }
             catch (err) {
                 console.log(err);
@@ -117,7 +118,7 @@ function ItemList() {
                             </div>
                         ))}
                     </div>
-                    <div className="absolute left-1/2 transform -translate-x-1/2 top-[260px] sm:top-[290px] lg:top-[320px] w-[90%] sm:w-[85%] lg:w-[927px] space-y-3">    {/* Table Number Input */}
+                    <div className="absolute left-1/2 transform -translate-x-1/2 top-[260px] sm:top-[290px] lg:top-[320px] w-[90%] sm:w-[85%] lg:w-[927px] space-y-3">  
                         <div className="inline-flex justify-between items-center">
                             <label className="text-white text-xl sm:text-2xl lg:text-3xl font-normal font-['Pompiere'] tracking-wide">
                                 Table No :
@@ -127,9 +128,9 @@ function ItemList() {
                                 min="1"
                                 max="50"
                                 value={customerTableNo || tableNo}
-                                onChange={customerTableNo ? undefined : handleTableChange}
+                                onChange={customerTableNo ? null : handleTableChange}
                                 readOnly={customerTableNo !== null}
-                                className={`w-20 h-10 px-2 bg-stone-800/80 border border-[#2D1B0F]/50 rounded-lg text-white text-xl sm:text-2xl font-normal font-['Pompiere'] tracking-wide text-center focus:outline-none focus:border-[#2D1B0F] focus:bg-stone-800 ${customerTableNo ? 'opacity-60' : ''}`}
+                                className={`w-20 h-10 px-2 bg-stone-900/50 border border-stone-600/50 rounded-lg text-white text-xl sm:text-2xl font-normal font-['Pompiere'] tracking-wide text-center focus:outline-none focus:border-[#2D1B0F] focus:bg-stone-800 ${customerTableNo ? 'opacity-60' : ''}`}
                                 placeholder="1-50"
                             />
                         </div>

@@ -2,7 +2,7 @@ export default function Item({ id,name, imageSrc, status, quantity,price, descri
   const cardBaseStyles = "w-64 h-64 rounded-tl-3xl rounded-br-3xl bg-black/30 shadow-[0px_2px_2px_0px_rgba(0,0,0,0.25)] outline outline-1 outline-offset-[-0.50px] outline-white/20 backdrop-blur-[2px]";
 
   return (
-    <div className="group h-56 w-64 [perspective:1000px]">
+    <div className="group h-56 w-64 [perspective:1000px] mb-12">
       
       <div className="relative h-full w-full rounded-tl-3xl rounded-br-3xl transition-transform duration-700 [transform-style:preserve-3d] group-hover:rotate-y-180">
         
