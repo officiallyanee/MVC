@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"MVC/pkg/middleware"
-	"MVC/pkg/models"
+	"backend/pkg/middleware"
+	"backend/pkg/models"
 	"database/sql"
 	"encoding/json"
 	"github.com/golang-jwt/jwt/v5"

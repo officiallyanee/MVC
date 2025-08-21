@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"MVC/pkg/models"
-	"MVC/pkg/types"
-	"MVC/pkg/utils"
+	"backend/pkg/models"
+	"backend/pkg/types"
+	"backend/pkg/utils"
 	"database/sql"
 	"encoding/json"
 	"net/http"
@@ -94,12 +94,7 @@ func (ac *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Name cannot be empty", http.StatusBadRequest)
 		return
 	}
-
-	if len(req.Password) < 8 {
-		http.Error(w, "Password must be at least 8 characters", http.StatusBadRequest)
-		return
-	}
-
+	
 	user, err := models.GetUserDetails(ac.DB, req.Name)
 	if err != nil || user == nil {
 		http.Error(w, "No user found. Sign up first!", http.StatusBadRequest)
@@ -131,4 +126,16 @@ func (ac *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"username": user.Name, "role": user.Role})
+}
+
+func (ac *AuthController) Logout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+		Value:    "",
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   -1,
+		Path:     "/",
+	})
+	w.WriteHeader(http.StatusOK)
 }

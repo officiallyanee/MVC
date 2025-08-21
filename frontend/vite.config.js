@@ -7,7 +7,7 @@ export default defineConfig({
   css: {
     postcss: {
       plugins: [
-        tailwindcss(), // And called as a function here
+        tailwindcss(), 
       ],
     },
   },

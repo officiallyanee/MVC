@@ -3,14 +3,14 @@ package main
 import (
 	"fmt"
 	"log"
-	"MVC/pkg/config"
-	"MVC/pkg/utils"
-	"MVC/pkg/api"
+	"backend/pkg/config"
+	"backend/pkg/utils"
+	"backend/pkg/api"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load("../../.env") 
+	err := godotenv.Load("../.env") 
 	if err != nil {
 		fmt.Println("Warning: .env file not found:", err)
 	}

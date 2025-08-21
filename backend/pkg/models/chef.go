@@ -2,7 +2,7 @@ package models
 
 import (
 	"database/sql"
-	"MVC/pkg/types"
+	"backend/pkg/types"
 )
 
 func GetPendingOrders(db *sql.DB) ([]types.OrderAndSubOrders, error) {

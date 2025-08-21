@@ -1,9 +1,9 @@
 package api
 
 import (
-	"MVC/pkg/controller"
-	"MVC/pkg/middleware"
-	"MVC/pkg/utils"
+	"backend/pkg/middleware"
+	"backend/pkg/controller"
+	"backend/pkg/utils"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -19,6 +19,7 @@ func StartServer() {
 	authController := controller.AuthController{DB: utils.DB}
 	router.HandleFunc("/register", authController.Register).Methods("POST")
 	router.HandleFunc("/login", authController.Login).Methods("POST")
+	router.HandleFunc("/logout", authController.Logout).Methods("DELETE")
 
 	auth := router.PathPrefix("/").Subrouter()
 	auth.Use(middleware.Authenticate)
@@ -33,6 +34,7 @@ func StartServer() {
 	adminSubRouter := auth.PathPrefix("/admin").Subrouter()
 	adminSubRouter.Use(middleware.RestrictTo("admin"))
 	adminSubRouter.HandleFunc("/{search}/{page}", adminController.GetAllOrders).Methods("GET")
+	adminSubRouter.HandleFunc("", adminController.UpdatePaymentStatus).Methods("PATCH")
 
 	chefController := controller.ChefController{DB: utils.DB}
 	chefSubRouter := auth.PathPrefix("/chef").Subrouter()
@@ -55,6 +57,6 @@ func StartServer() {
 	orderSubRouter.HandleFunc("", ordersController.GetOrders).Methods("GET")
 	orderSubRouter.HandleFunc("", ordersController.UpdateOrder).Methods("PATCH")
 
-	log.Println("Server running on :8080")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Println("Server running on :8081")
+	log.Fatal(http.ListenAndServe(":8081", router))
 }

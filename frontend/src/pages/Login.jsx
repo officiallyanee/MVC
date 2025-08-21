@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../provider/AuthProvider';
+  
 
 const UserIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -54,7 +55,7 @@ const LoginForm = ({ valuesLogin, setValuesLogin, handleLogin, setIsLoginView })
             </label>
         </div>
 
-        <button onClick={handleLogin} type="submit" className="w-44 h-14 mt-12 bg-white/60 rounded-[32px] shadow-[inset_0px_0px_8px_4px_rgba(0,0,0,0.20)] outline outline-1 outline-offset-[-1px] outline-white/50 text-center text-black/80 text-3xl font-normal font-['Pompiere'] tracking-wide hover:bg-white/80 transition-colors duration-300">
+        <button onClick={handleLogin} className="w-44 h-14 mt-12 bg-white/60 rounded-[32px] shadow-[inset_0px_0px_8px_4px_rgba(0,0,0,0.20)] outline outline-1 outline-offset-[-1px] outline-white/50 text-center text-black/80 text-3xl font-normal font-['Pompiere'] tracking-wide hover:bg-white/80 transition-colors duration-300">
             LOGIN
         </button>
         <div className="mt-6 text-center justify-center">
@@ -100,7 +101,7 @@ const SignupForm = ({ valuesSignup, setValuesSignup, handleSignup, setIsLoginVie
             </label>
         </div>
 
-        <button onClick={handleSignup} type="button" className="w-44 h-14 mt-12 bg-white/60 rounded-[32px] shadow-[inset_0px_0px_8px_4px_rgba(0,0,0,0.20)] outline outline-1 outline-offset-[-1px] outline-white/50 text-center text-black/80 text-3xl font-normal font-['Pompiere'] tracking-wide hover:bg-white/80 transition-colors duration-300">
+        <button onClick={handleSignup} className="w-44 h-14 mt-12 bg-white/60 rounded-[32px] shadow-[inset_0px_0px_8px_4px_rgba(0,0,0,0.20)] outline outline-1 outline-offset-[-1px] outline-white/50 text-center text-black/80 text-3xl font-normal font-['Pompiere'] tracking-wide hover:bg-white/80 transition-colors duration-300">
             SIGNUP
         </button>
          <div className="mt-4 text-center justify-center">
@@ -124,10 +125,7 @@ function Login() {
         Password: ''
     })
 
-const handleLogin = async (e) => {
-    e.preventDefault();
-    console.log("Values before sending:", valuesLogin);
-    
+const handleLogin = async () => {
     try {
         await login(valuesLogin);
     } catch (error) {
@@ -135,10 +133,7 @@ const handleLogin = async (e) => {
     }
 }
 
-const handleSignup = async (e) => {
-    e.preventDefault();
-    console.log("Values before sending:", valuesSignup);
-    
+const handleSignup = async () => {
     try {
         await signup(valuesSignup);
     } catch (error) {

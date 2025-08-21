@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import axios from 'axios';
+import { BackendUrlContext } from '../context/BackendUrl';
 
 function CustomDropdown({ categories, onSelectCategory, setMenuItems }) {
+    const backendURL=useContext(BackendUrlContext)
     const [isOpen, setIsOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(categories.length > 0 ? categories[0] : null);
     const dropdownRef = useRef(null);
@@ -23,7 +25,7 @@ function CustomDropdown({ categories, onSelectCategory, setMenuItems }) {
     const handleSelect = async (category) => {
       setSelectedCategory(category);
       setIsOpen(false);
-      const response = await axios.get(`http://localhost:8080/menu/${category.category}`);
+      const response = await axios.get(backendURL+`/menu/${category.category}`);
       setMenuItems(response.data);
       console.log(response.data);
         onSelectCategory(category.category);
@@ -32,7 +34,7 @@ function CustomDropdown({ categories, onSelectCategory, setMenuItems }) {
     return (
       <div className="relative w-52 mb-2" ref={dropdownRef}>
         <div
-          className="w-52 h-14 relative bg-black/30 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] shadow-[inset_0px_2px_8px_0px_rgba(255,255,255,0.20)] backdrop-blur-[2px] overflow-hidden cursor-pointer flex items-center justify-center"
+          className="w-52 h-14 relative bg-black/30 shadow-[0px_2px_2px_0px_rgba(0,0,0,0.25)] outline outline-1 outline-offset-[-0.50px] outline-white/20 backdrop-blur-[2px] overflow-hidden cursor-pointer flex items-center justify-center"
           onClick={() => setIsOpen(!isOpen)}
         >
           <div className="text-center text-white text-3xl font-normal font-['Pompiere'] tracking-wide">

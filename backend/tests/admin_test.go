@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/DATA-DOG/go-sqlmock"
+	"backend/pkg/controller"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -15,7 +16,7 @@ func TestUpdatePaymentStatus(t *testing.T) {
 	}
 	defer db.Close()
 
-	adminController := &AdminController{DB: db}
+	adminController := &controller.AdminController{DB: db}
 
 	mock.ExpectExec("UPDATE orders SET payment_status = 'paid' WHERE order_id = ?").
 		WithArgs("order-123").

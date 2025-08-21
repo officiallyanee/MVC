@@ -1,51 +1,63 @@
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { toast } from "react-toastify";
 import CustomDropdown from "../components/DropDown";
 import Item from "../components/Item";
 import axios from "axios";
+import { BackendUrlContext } from "../context/BackendUrl";
+import { useLocation } from "react-router-dom";
 
 function MenuPage() {
+  const backendURL = useContext(BackendUrlContext)
   const [menuItems, setMenuItems] = useState([]);
   const [categories, setCategories] = useState([]);
+  const location = useLocation();
+  const fromHome = location.state?.from === 'home';
   const [selected, setSelected] = useState(null);
+  const toastStyle = {
+    position: "bottom-right",
+    autoClose: 3000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "colored",
+  }
   const [itemList, setItemList] = useState(() => {
     try {
       const rawData = window.localStorage.getItem("itemList");
       return rawData ? JSON.parse(rawData) : [];
     } catch (error) {
-      console.error("Error reading from localStorage", error);
       return [];
     }
   });
   const handleSelection = (category) => {
-    console.log("Selected category in App:", category.category);
     setSelected(category.category);
   };
 
-  
+
   useEffect(() => {
     const fetchItemList = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/menu");
+        const response = await axios.get(backendURL + "/menu");
         setMenuItems(response.data.items);
         setCategories(response.data.categories);
-      } catch (err) {
-        console.log(err);
+      } catch (error) {
+        toast.error("Try again later", toastStyle);
       }
     }
     fetchItemList();
-  }
-    , []);
+  }, []);
 
 
 
   useEffect(() => {
     try {
-      console.log(itemList);
       const dataString = JSON.stringify(itemList);
       window.localStorage.setItem("itemList", dataString);
     } catch (error) {
-      console.error("Error writing cart to localStorage", error);
+      toast.error("Try again later", toastStyle);
     }
   }, [itemList]);
 
@@ -66,10 +78,8 @@ function MenuPage() {
   };
 
   const subQuantity = (productId) => {
-    console.log("Subtract clicked for :", productId);
     setItemList(prevList => {
       const existingItem = prevList.find(item => item.item_id === productId);
-      console.log(existingItem)
       if (existingItem && existingItem.quantity > 1) {
         return prevList.map(item =>
           item.item_id === productId ? { ...item, quantity: item.quantity - 1 } : item
@@ -80,23 +90,22 @@ function MenuPage() {
 
       return prevList;
     });
-    console.log(itemList);
   };
-  
+
   return (
     < >
       <motion.div
         className="absolute inset-0 pt-32 pb-8 px-4 sm:px-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2.6, duration: 0.5 }}
+        transition={fromHome ? { delay: 2.6, duration: 0.5 } : { duration: 0.3 }}
       >
         <CustomDropdown
           categories={categories}
           onSelectCategory={handleSelection}
           setMenuItems={setMenuItems}
         />
-        <div className="h-[calc(100vh-200px)] w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 place-items-center overflow-y-scroll pt-2 ">
+        <div className="menu h-[calc(100vh-200px)] justify-items-center  w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 overflow-y-scroll pt-2 ">
 
           {menuItems.map((item) => {
             const quantity = itemList.find(itemList => itemList.item_id === item.item_id)?.quantity || 0;

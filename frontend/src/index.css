@@ -1,1 +1,15 @@
 @import "tailwindcss";
+html{
+    scroll-behavior: smooth;
+}
+.menu {
+  scrollbar-color: #0c2913 #0D3C17;
+}
+.orders{
+    scrollbar-color: #091e0e #0c2a13;
+    scrollbar-width: thin ;
+}
+.itemlist{
+  scrollbar-color: #FACC15 #1f1a17;
+scrollbar-width: thin ;
+}

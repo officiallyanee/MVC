@@ -102,6 +102,6 @@ type OrderWithCustomerName struct {
 }
 
 type OrderDetails struct {
-	Order     OrderWithCustomerName `json:"order"`
+	Order     OrderWithCustomerName 		`json:"order"`
 	SubOrders []SubOrderWithName           `json:"sub_orders"`
 }

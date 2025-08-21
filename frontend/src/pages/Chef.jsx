@@ -1,21 +1,46 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { toast } from "react-toastify"; 
+import axios from "axios";
+import { BackendUrlContext } from "../context/BackendUrl";
+import { useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 
 function Chef() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(false);
+    const location = useLocation();
+    const fromHome = location.state?.from === 'home';
+    const toastStyle = {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+    }
+    const backendURL = useContext(BackendUrlContext);
+
+    const isItemDone = (item) => {
+        return item.chef_id && item.chef_id.Valid && item.chef_id.String !== "";
+    };
+
+    const isOrderComplete = (orderData) => {
+        return orderData.sub_orders.every(item => isItemDone(item));
+    };
 
     const fetchAllPendingOrders = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:8080/chef', {
-                method: 'GET',
-                credentials: 'include'
-            });
-            const data = await response.json();
-            console.log(data);
-            setOrders(data || []);
+            const response = await axios.get(backendURL + '/chef');
+            const allOrders = response.data || [];
+            
+            const pendingOrders = allOrders.filter(orderData => !isOrderComplete(orderData));
+            
+            setOrders(pendingOrders);
         } catch (error) {
-            console.error('Error fetching orders:', error);
+            toast.error(error.response?.data || 'Error fetching orders', toastStyle);
             setOrders([]);
         } finally {
             setLoading(false);
@@ -28,20 +53,16 @@ function Chef() {
 
     const handleUpdateChef = async (orderId, itemId) => {
         try {
-            const response = await fetch(`http://localhost:8080/chef`, {
-                method: 'PATCH',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
+            const response = await axios.patch(backendURL + `/chef`,{
                     order_id: orderId,
                     item_id: itemId
-                })
+                }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
             
-            if (response.ok) {
-                console.log('Chef updated successfully');
+            if (response.status === 200) {
                 setOrders(prevOrders => {
                     return prevOrders.map(order => {
                         if (order.order.order_id === orderId) {
@@ -73,7 +94,7 @@ function Chef() {
                 });
             }
         } catch (error) {
-            console.error('Error updating Chef:', error);
+            toast.error(error.response?.data || 'Error updating Chef', toastStyle);
         }
     };
 
@@ -86,20 +107,19 @@ function Chef() {
         }
     };
 
-    const isItemDone = (item) => {
-        return item.chef_id && item.chef_id.Valid && item.chef_id.String !== "";
-    };
-
     return (
-            <div className="max-w-7xl mx-auto">
-                {/* Stats */}
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={fromHome ? { delay: 2.6, duration: 0.5 } : { duration: 0.3 }}
+                className="max-w-7xl mx-auto"
+            >
                 <div className="text-center mb-8">
                     <p className="text-white font-['Pompiere'] text-xl">
                         {loading ? "Loading..." : ``}
                     </p>
                 </div>
 
-                {/* Orders Grid */}
                 {loading ? (
                     <div className="flex justify-center items-center h-64">
                         <div className="text-white text-2xl font-['Pompiere']">Loading orders...</div>
@@ -192,7 +212,7 @@ function Chef() {
                         ))}
                     </div>
                 )}
-            </div>
+            </motion.div>
     );
 }
 

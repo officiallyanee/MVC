@@ -3,7 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
-	"MVC/pkg/types"
+	"backend/pkg/types"
 )
 
 

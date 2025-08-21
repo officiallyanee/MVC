@@ -1,0 +1,12 @@
+# Ignore unnecessary files
+.git
+.gitignore
+*.md
+*.log
+*.tmp
+*.swp
+node_modules
+vendor
+bin
+dist
+.env

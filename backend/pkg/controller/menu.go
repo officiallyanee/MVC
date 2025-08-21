@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"MVC/pkg/models"
+	"backend/pkg/models"
 	"database/sql"
 	"encoding/json"
 	"net/http"

@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"MVC/pkg/models"
-	"MVC/pkg/types"
+	"backend/pkg/models"
+	"backend/pkg/types"
 	"database/sql"
 	"encoding/json"
 	"net/http"

@@ -47,9 +47,9 @@ function Animation({ activePage }) {
 
       <motion.img
         src="/bowl.png"
-        className="absolute h-full right-0 top-0 object-contain"
+        className="absolute h-full right-[-25%] top-0 object-contain"
         animate={{
-          x: isPageSelected ? '-100vw' : '0vw',
+          x: isPageSelected ? '-150vw' : '0vw',
           rotate: isPageSelected ? -360 : 0,
         }}
         transition={{

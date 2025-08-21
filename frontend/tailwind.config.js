@@ -1,4 +1,5 @@
-// tailwind.config.js
+import tailwindScrollbar from 'tailwind-scrollbar';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -6,7 +7,16 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
-  },
-  plugins: [],
+        extend: {
+            colors: {
+                custom: {
+                    DEFAULT: '#0D3C17',
+                    light: '#d1fae5',
+                },
+            },
+        },
+    },
+  plugins: [
+    tailwindScrollbar({ nocompatible: true }),
+  ],
 }

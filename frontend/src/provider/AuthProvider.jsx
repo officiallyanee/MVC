@@ -1,19 +1,19 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { toast } from 'react-toastify';
 import axios from "axios";
 
-// ADD THIS: Import your permissions
-import PERMISSIONS from "../permissions/permissions"; // Update this path to where your permissions file is
+import PERMISSIONS from "../permissions/permissions"; 
+import { BackendUrlContext } from "../context/BackendUrl";
 
 axios.defaults.withCredentials = true;
 
 const AuthContext = createContext(null);
 
-// ADD THIS FUNCTION: Map roles to permissions
 const getRolePermissions = (role) => {
     switch (role?.toLowerCase()) {
         case 'admin':
-            return [PERMISSIONS.CAN_VIEW_ADMIN, PERMISSIONS.CAN_VIEW_CHEF];
+            return [PERMISSIONS.CAN_VIEW_ADMIN];
         case 'chef':
             return [PERMISSIONS.CAN_VIEW_CHEF];
         default:
@@ -22,9 +22,19 @@ const getRolePermissions = (role) => {
 };
 
 export const AuthProvider = ({ children }) => {
+    const backendURL = useContext(BackendUrlContext)
     const navigate = useNavigate();
     const location = useLocation();
-    
+    const toastStyle={
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+    }
     const [loading, setLoading] = useState(true);
 
     const [user, setUser] = useState(() => {
@@ -37,9 +47,9 @@ export const AuthProvider = ({ children }) => {
                     role: parsed.role || "",
                     permissions: getRolePermissions(parsed.role) || [] 
                 };
-            }
+            } 
             return { username: "", role: "", permissions: [] }; 
-        } catch (e) {
+        } catch (error) {
             return { username: "", role: "", permissions: [] }; 
         }
     });
@@ -47,16 +57,26 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const checkAuth = async () => {
             try {
+                const storedUser = localStorage.getItem('user');
+                if (!storedUser) {
+                    if (location.pathname !== '/login') {
+                        navigate('/login', { 
+                            state: { path: location.pathname },
+                            replace: true 
+                        });
+                    }
+                    setUser({ username: "", role: "", permissions: [] });
+                }
                 setLoading(false);
             } catch (error) {
-                console.error("Auth check failed:", error);
                 setUser({ username: "", role: "", permissions: [] });
+                navigate('/login', { replace: true });
                 setLoading(false);
             }
         };
 
         checkAuth();
-    }, []);
+    }, [location.pathname, navigate]);
 
     useEffect(() => {
         if (user.username) {
@@ -68,29 +88,29 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (credentials) => {
         try {
-            const response = await axios.post("http://localhost:8080/login", credentials);
+            const response = await axios.post(`${backendURL}/login`, credentials);
             const userData = response.data;
 
-            setUser({
+            const newUser = {
                 username: userData.username,
                 role: userData.role,
-                permissions: getRolePermissions(userData.role) // ADD THIS LINE
-            });
+                permissions: getRolePermissions(userData.role)
+            };
+
+            setUser(newUser);
 
             const redirectPath = location.state?.path || "/home";
             navigate(redirectPath, { replace: true });
 
         } catch (error) {
-            console.error("Login failed:", error);
+            toast.error((error.response?.data|| "Login failed"), toastStyle);
             throw error;
         }
     };
 
     const signup = async (credentials) => {
         try {
-            console.log("Credentials:", credentials);
-
-            const response = await axios.post("http://localhost:8080/register", {
+            const response = await axios.post(backendURL + "/register", {
                 name: credentials.Name,
                 email: credentials.Email,
                 password: credentials.Password
@@ -102,30 +122,31 @@ export const AuthProvider = ({ children }) => {
 
             const userData = response.data;
 
-            // MODIFY THIS: Add permissions
-            setUser({
+            const newUser = {
                 username: userData.username,
                 role: userData.role,
-                permissions: getRolePermissions(userData.role) // ADD THIS LINE
-            });
+                permissions: getRolePermissions(userData.role) 
+            };
+
+            setUser(newUser);
 
             const redirectPath = location.state?.path || "/home";
             navigate(redirectPath, { replace: true });
 
         } catch (error) {
-            console.error("Signup failed:", error);
-            throw error;
+            toast.error((error.response?.data|| "Login failed"), toastStyle);
         }
     };
 
     const logout = async () => {
         try {
-            await axios.post("http://localhost:8080/logout");
-        } catch (error) {
-            console.error("Logout failed:", error);
-        } finally {
+            await axios.delete(backendURL + "/logout");
             setUser({ username: "", role: "", permissions: [] }); 
+            localStorage.removeItem('user');
+            localStorage.removeItem('itemList');
             navigate("/login");
+        } catch (error) {
+            toast.error(("Logout failed"), toastStyle);
         }
     };
 

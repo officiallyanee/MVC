@@ -6,8 +6,8 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"MVC/pkg/config"
-	"MVC/pkg/types"
+	"backend/pkg/config"
+	"backend/pkg/types"
 )
 
 var DB *sql.DB

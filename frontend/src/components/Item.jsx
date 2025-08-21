@@ -2,7 +2,7 @@ export default function Item({ id,name, imageSrc, status, quantity,price, descri
   const cardBaseStyles = "w-64 h-64 rounded-tl-3xl rounded-br-3xl bg-black/30 shadow-[0px_2px_2px_0px_rgba(0,0,0,0.25)] outline outline-1 outline-offset-[-0.50px] outline-white/20 backdrop-blur-[2px]";
 
   return (
-    <div className="group h-56 w-64 [perspective:1000px] mb-12">
+    <div className="group h-56 w-64 [perspective:1000px] mb-12 ">
       
       <div className="relative h-full w-full rounded-tl-3xl rounded-br-3xl transition-transform duration-700 [transform-style:preserve-3d] group-hover:rotate-y-180">
         
@@ -26,11 +26,11 @@ export default function Item({ id,name, imageSrc, status, quantity,price, descri
 
         <div className={`absolute inset-0 ${cardBaseStyles} [backface-visibility:hidden] [transform:rotateY(180deg)]`}>
           <div className="flex h-full w-full flex-col items-center justify-center gap-4 p-4 text-center">
-            <h3 className="font-['Pompiere'] text-3xl text-yellow-300 px-7 py-8">{name}</h3>
-            <p className="flex-grow font-['Pompiere'] text-lg text-white">
+            <h3 className="font-['Pompiere'] text-3xl text-yellow-300 px-7 py-4">{name}</h3>
+            <p className="flex-grow font-['Pompiere'] text-lg text-white place-content-center">
               {description || "No description available."}
             </p>
-              <div className="inline-flex items-start justify-center self-stretch px-2">
+              <div className="inline-flex items-start justify-center self-stretch px-2 pb-2">
               <div className={`flex-1 self-stretch justify-center font-['Pompiere'] text-2xl font-normal tracking-wide ${status === 'Available' ? 'text-green-500' : 'text-red-500'}`}>
                 {status}
               </div>

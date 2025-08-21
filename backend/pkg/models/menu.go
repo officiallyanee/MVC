@@ -1,7 +1,7 @@
 package models
 
 import (
-	"MVC/pkg/types"
+	"backend/pkg/types"
 	"database/sql"
 	"log"
 )

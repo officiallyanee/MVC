@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"MVC/pkg/types"
+	"backend/pkg/types"
 	"github.com/golang-jwt/jwt/v5"
 	"math/rand"
 	"os"
