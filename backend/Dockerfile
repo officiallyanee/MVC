@@ -1,30 +1,16 @@
-
-FROM golang:1.24 AS builder
-
+FROM golang:latest AS builder
 WORKDIR /app
-
 COPY go.mod go.sum ./
-
 RUN go mod download
-
 COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd
+RUN go install -tags 'mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server ./cmd/main.go
-
-FROM alpine:3.20
-
-RUN apk --no-cache add ca-certificates tzdata
-
-RUN adduser -D -s /bin/sh appuser
-
-WORKDIR /home/appuser
-
-COPY --from=builder --chown=appuser:appuser /app/server .
-
-COPY --chown=appuser:appuser database/migration ./database/migration
-
-USER appuser
-
-EXPOSE 8080
-
-CMD ["./server"]
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates mysql-client
+WORKDIR /root/
+COPY --from=builder /app/main .
+COPY --from=builder /go/bin/migrate /usr/local/bin/migrate
+COPY database/migration ./migrations/
+EXPOSE 8081
+CMD ["./main"]

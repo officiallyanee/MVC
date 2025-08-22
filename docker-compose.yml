@@ -1,35 +1,38 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  db:
+  mysql:
     image: mysql:8.0
-    container_name: mysql_db
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    container_name: mvc_mysql
+    restart: unless-stopped
+    env_file:
+      - .env
     ports:
-      - "3400:3306"
+      - "${MYSQL_PORT}:3306"
     volumes:
-      - db_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
+    networks:
+      - mvc_network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_PASSWORD}"]
-      timeout: 5s
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      timeout: 20s
       retries: 10
-      interval: 10s
-      start_period: 30s
 
   migrate:
-    image: migrate/migrate
-    container_name: migrate_service
+    image: migrate/migrate:latest
+    container_name: mvc_migrate
+    env_file:
+      - .env
     depends_on:
-      db:
+      mysql:
         condition: service_healthy
+    networks:
+      - mvc_network
     volumes:
       - ./backend/database/migration:/migrations
     command: [
       "-path", "/migrations",
-      "-database", "mysql://root:${MYSQL_PASSWORD}@tcp(db:3306)/${MYSQL_DATABASE}",
+      "-database", "mysql://root:${MYSQL_PASSWORD}@tcp(mysql:3306)/${MYSQL_DATABASE}",
       "up"
     ]
     restart: "no"
@@ -38,35 +41,44 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: go_backend
+    container_name: mvc_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - MYSQL_HOST=mysql
+    ports:
+    - "${BACKEND_PORT}:8081"
     depends_on:
+      mysql:
+        condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    ports:
-      - "8081:8080"
-    env_file:
-      - ./.env
-    environment:
-      MYSQL_HOST: db
-      MYSQL_PORT: 3400
-      MYSQL_USER: root
-    restart: unless-stopped
+    networks:
+      - mvc_network
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: react_frontend
-    depends_on:
-      - backend
+    container_name: mvc_frontend
+    restart: unless-stopped
+    env_file:
+      - ./frontend/.env
     ports:
       - "5173:5173"
-    environment:
-      - VITE_BACKEND_URL=http://localhost:8081
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    restart: unless-stopped
+    networks:
+      - mvc_network
+    depends_on:
+      - backend
+
+
+networks:
+  mvc_network:
+    driver: bridge
 
 volumes:
-  db_data:
+  mysql_data:
